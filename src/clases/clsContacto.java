@@ -1,9 +1,9 @@
 package clases;
 
-public class clsPersona {
+public class clsContacto {
     private String nombre, direccion, provincia, canton;
 
-    public clsPersona() {
+    public clsContacto() {
     }
 
     public String getNombre() {

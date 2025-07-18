@@ -9,7 +9,7 @@ import java.util.List;
 
 public class clsUtils {
 
-    public List<clsPersona> personas = new ArrayList<>();
+    public List<clsContacto> personas = new ArrayList<>();
 
     public void cargarClientes(JComboBox cmb, String archivo)
     {
