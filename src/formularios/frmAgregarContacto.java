@@ -1,121 +1,148 @@
 package formularios;
 
+import clases.clsContacto;
 import clases.clsUtils;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class frmAgregarContacto {
-    public JPanel frmPanel;
-    private JTextField txtNombre;
-    private JComboBox cmbCanton;
-    private JComboBox cmbProvincia;
+    public JPanel pnlAgregarContacto;
+
+    // Componentes del .form
     private JLabel lblNombre;
     private JLabel lblProvincia;
     private JLabel lblCanton;
     private JLabel lblDistrito;
-    private JComboBox cmbDistrito;
-    private JTable tlbMostrarPersona;
     private JLabel lblConsulta;
-    private JButton btnAgregar;
     private JLabel lblAccion;
-    private JButton btnEditar;
+    private JLabel lblDireccion;
+    private JLabel txtareaDireccion;
+
+    private JTextField txtNombre;
+    private JTextField txtEmail;
+    private JTextArea textArea1; // Dirección
+
+    private JComboBox<String> cmbProvincia;
+    private JComboBox<String> cmbCanton;
+    private JComboBox<String> cmbDistrito;
+
+    private JTable tlbMostrarPersona;
+
+    private JButton btnAgregar;
     private JButton btnEliminar;
-    public clsUtils util= new clsUtils();
-    public DefaultTableModel modelo = new DefaultTableModel();
+    private JButton btnRegresar;
 
-    public frmAgregarContacto() {
-        txtNombre.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+    // Lógica
+    private boolean modoEdicion = false;
+    private clsContacto contactoActual = null;
+    private Runnable onGuardarCallback;
+    private List<String[]> ubicaciones;
 
-            }
+    public frmAgregarContacto(clsContacto contacto, Runnable onGuardarCallback) {
+        this.onGuardarCallback = onGuardarCallback;
+        ubicaciones = clsUtils.cargarUbicaciones("ubicacionesCR.txt");
+
+        clsUtils.llenarProvincias(cmbProvincia, ubicaciones);
+
+        cmbProvincia.addActionListener(e -> {
+            String provincia = (String) cmbProvincia.getSelectedItem();
+            clsUtils.llenarCantones(cmbCanton, ubicaciones, provincia);
+            cmbDistrito.removeAllItems();
         });
-        cmbProvincia.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
 
-            }
+        cmbCanton.addActionListener(e -> {
+            String provincia = (String) cmbProvincia.getSelectedItem();
+            String canton = (String) cmbCanton.getSelectedItem();
+            clsUtils.llenarDistritos(cmbDistrito, ubicaciones, provincia, canton);
         });
-        cmbCanton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
 
-            }
-        });
-        tlbMostrarPersona.addKeyListener(new KeyAdapter() {
-            @Override
-            public int hashCode() {
-                return super.hashCode();
-            }
+        if (contacto != null) {
+            modoEdicion = true;
+            contactoActual = contacto;
+            precargarDatos(contacto);
+            btnAgregar.setText("Actualizar");
+        } else {
+            btnAgregar.setText("Agregar");
+        }
 
-            @Override
-            public boolean equals(Object obj) {
-                return super.equals(obj);
-            }
+        btnAgregar.addActionListener(e -> guardarContacto());
 
-            @Override
-            protected Object clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
+        btnEliminar.addActionListener(e -> eliminarContacto());
 
-            @Override
-            public String toString() {
-                return super.toString();
-            }
+        btnRegresar.addActionListener(e -> cerrarVentana());
+    }
 
-            @Override
-            protected void finalize() throws Throwable {
-                super.finalize();
-            }
+    private void precargarDatos(clsContacto c) {
+        txtNombre.setText(c.getNombre());
+        cmbProvincia.setSelectedItem(c.getProvincia());
+        clsUtils.llenarCantones(cmbCanton, ubicaciones, c.getProvincia());
+        cmbCanton.setSelectedItem(c.getCanton());
+        clsUtils.llenarDistritos(cmbDistrito, ubicaciones, c.getProvincia(), c.getCanton());
+        cmbDistrito.setSelectedItem(c.getDistrito());
+        textArea1.setText(c.getDireccion());
+        txtEmail.setText(c.getCorreoElectronico());
+    }
 
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-            }
+    private void guardarContacto() {
+        String nombre = txtNombre.getText().trim();
+        String direccion = textArea1.getText().trim();
+        String correo = txtEmail.getText().trim();
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-            }
+        Object provinciaSel = cmbProvincia.getSelectedItem();
+        Object cantonSel = cmbCanton.getSelectedItem();
+        Object distritoSel = cmbDistrito.getSelectedItem();
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-            }
-        });
-        frmPanel.addComponentListener(new ComponentAdapter() {
-        });
-        btnAgregar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(pnlAgregarContacto, "El nombre no puede estar vacío.");
+            return;
+        }
 
-            }
-        });
-        btnEditar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        if (provinciaSel == null || cantonSel == null || distritoSel == null) {
+            JOptionPane.showMessageDialog(pnlAgregarContacto, "Debes seleccionar provincia, cantón y distrito.");
+            return;
+        }
 
-            }
-        });
-        btnEliminar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        if (!correo.isEmpty() && !correo.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            JOptionPane.showMessageDialog(pnlAgregarContacto, "Correo electrónico inválido.");
+            return;
+        }
 
-            }
-        });
-        tlbMostrarPersona.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-            }
-        });
-        cmbDistrito.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        String provincia = provinciaSel.toString();
+        String canton = cantonSel.toString();
+        String distrito = distritoSel.toString();
 
+        clsContacto nuevo = new clsContacto(nombre, direccion, provincia, canton, distrito, correo);
+
+        List<clsContacto> lista = clsUtils.cargarContactos("agenda.txt");
+        if (modoEdicion) {
+            lista.removeIf(c -> c.getNombre().equalsIgnoreCase(contactoActual.getNombre()));
+        }
+
+        lista.add(nuevo);
+        clsUtils.guardarContactos("agenda.txt", lista);
+
+        if (onGuardarCallback != null) {
+            onGuardarCallback.run();
+        }
+
+        cerrarVentana();
+    }
+
+    private void eliminarContacto() {
+        if (modoEdicion && contactoActual != null) {
+            List<clsContacto> lista = clsUtils.cargarContactos("agenda.txt");
+            lista.removeIf(c -> c.getNombre().equalsIgnoreCase(contactoActual.getNombre()));
+            clsUtils.guardarContactos("agenda.txt", lista);
+            if (onGuardarCallback != null) {
+                onGuardarCallback.run();
             }
-        });
+            cerrarVentana();
+        }
+    }
+
+    private void cerrarVentana() {
+        SwingUtilities.getWindowAncestor(pnlAgregarContacto).dispose();
     }
 }

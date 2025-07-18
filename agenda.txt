@@ -1,0 +1,5 @@
+Luis Rodríguez;Avenida 3, Alajuela;Alajuela;Central;Alajuela;luis.rodriguez@email.com
+María Fernández;Barrio Los Ángeles;Heredia;Central;Heredia;maria.fernandez@email.com
+Carlos Méndez;Residencial El Roble;Cartago;Oriental;Agua Caliente;carlos.mendez@email.com
+Sofía Vargas;Urbanización La Paz;Puntarenas;Central;Puntarenas;sofia.vargas@email.com
+Ana Gómezz;Calle 12, San José;San José;Central;Carmen;ana.gomez@email.com

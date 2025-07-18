@@ -1,0 +1,31 @@
+Provincia,Cantón,Distrito
+San José,Central,Carmen
+San José,Central,Merced
+San José,Escazú,San Rafael
+San José,Escazú,San Antonio
+San José,Desamparados,San Miguel
+San José,Desamparados,San Juan de Dios
+Alajuela,Central,Alajuela
+Alajuela,Central,San José
+Alajuela,San Ramón,San Ramón
+Alajuela,San Ramón,Santiago
+Heredia,Central,Heredia
+Heredia,Central,Mercedes
+Heredia,Barva,Barva
+Heredia,Barva,San Pablo
+Cartago,Central,Oriental
+Cartago,Central,Occidental
+Cartago,Paraíso,Paraíso
+Cartago,Paraíso,Santiago
+Puntarenas,Central,Puntarenas
+Puntarenas,Central,Chacarita
+Puntarenas,Esparza,Esparza
+Puntarenas,Esparza,Caldera
+Limón,Central,Limón
+Limón,Central,Moin
+Limón,Pococí,Guápiles
+Limón,Pococí,Rita
+Guanacaste,Liberia,Liberia
+Guanacaste,Liberia,Cañas Dulces
+Guanacaste,Nicoya,Nicoya
+Guanacaste,Nicoya,Mansión
