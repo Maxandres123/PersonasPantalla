@@ -7,6 +7,10 @@ import java.util.List;
 
 public class clsUtils {
 
+    // ──────────────────────────────────────────────────────────────────────────────
+    // 📄 Contactos - Carga y Guardado
+    // ──────────────────────────────────────────────────────────────────────────────
+
     /**
      * Carga contactos desde un archivo .txt
      * @param rutaArchivo Ruta del archivo
@@ -18,16 +22,18 @@ public class clsUtils {
             String renglon;
             while ((renglon = lectura.readLine()) != null) {
                 String[] partes = renglon.split(";");
-                if (partes.length == 6) {
+                if (partes.length == 7) {
                     clsContacto contacto = new clsContacto(
                             partes[0], partes[1], partes[2],
-                            partes[3], partes[4], partes[5]
+                            partes[3], partes[4], partes[5], partes[6]
                     );
                     lista.add(contacto);
+                } else {
+                    System.err.println("Línea inválida (esperados 7 campos): " + renglon);
                 }
             }
         } catch (IOException ex) {
-            System.out.println("Error al leer contactos: " + ex.getMessage());
+            System.err.println("Error al leer contactos: " + ex.getMessage());
         }
         return lista;
     }
@@ -40,16 +46,11 @@ public class clsUtils {
     public static void guardarContactos(String rutaArchivo, List<clsContacto> contactos) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
             for (clsContacto c : contactos) {
-                writer.write(c.getNombre() + ";" +
-                        c.getDireccion() + ";" +
-                        c.getProvincia() + ";" +
-                        c.getCanton() + ";" +
-                        c.getDistrito() + ";" +
-                        c.getCorreoElectronico());
+                writer.write(c.toLine());
                 writer.newLine();
             }
         } catch (IOException ex) {
-            System.out.println("Error al guardar contactos: " + ex.getMessage());
+            System.err.println("Error al guardar contactos: " + ex.getMessage());
         }
     }
 
@@ -62,8 +63,15 @@ public class clsUtils {
             combo.addItem(c.getNombre());
         }
     }
+
+    // ──────────────────────────────────────────────────────────────────────────────
+    // 🌎 Ubicaciones - Provincia, Cantón, Distrito
+    // ──────────────────────────────────────────────────────────────────────────────
+
     /**
-     * Lee ubicaciones (Provincia,Cantón,Distrito) desde archivo CSV y las guarda como objetos string[]
+     * Carga ubicaciones desde un archivo CSV con estructura: provincia,canton,distrito
+     * @param rutaArchivo Ruta del archivo
+     * @return Lista de arreglos [provincia, cantón, distrito]
      */
     public static List<String[]> cargarUbicaciones(String rutaArchivo) {
         List<String[]> lista = new ArrayList<>();
@@ -72,11 +80,15 @@ public class clsUtils {
             while ((renglon = lectura.readLine()) != null) {
                 String[] partes = renglon.split(",");
                 if (partes.length == 3) {
-                    lista.add(new String[]{partes[0].trim(), partes[1].trim(), partes[2].trim()});
+                    lista.add(new String[]{
+                            partes[0].trim(), partes[1].trim(), partes[2].trim()
+                    });
+                } else {
+                    System.err.println("Línea inválida de ubicación: " + renglon);
                 }
             }
         } catch (IOException ex) {
-            System.out.println("Error al leer ubicaciones: " + ex.getMessage());
+            System.err.println("Error al leer ubicaciones: " + ex.getMessage());
         }
         return lista;
     }
@@ -124,5 +136,4 @@ public class clsUtils {
             }
         }
     }
-
 }

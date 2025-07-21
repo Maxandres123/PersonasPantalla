@@ -5,13 +5,13 @@ import clases.clsContacto;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
 public class plnPrincipal extends JFrame {
     public JPanel plnPrincipal;
 
-    // Componentes visuales del .form
     private JLabel lblBusqueda;
     private JTextField txtPincipalBusqueda;
     private JLabel lblPrincipalAction;
@@ -21,9 +21,17 @@ public class plnPrincipal extends JFrame {
 
     private clsAgenda agenda;
     private DefaultTableModel modelo;
+    private JPanel panelInicial;
 
     public plnPrincipal() {
-        // Si tienes custom-create: createUIComponents(); (ya incluido si el botón se declara manualmente)
+        setTitle("Agenda Azul");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(700, 500);
+        setLocationRelativeTo(null);
+
+        panelInicial = plnPrincipal;
+        setContentPane(panelInicial);
+
         initAgenda();
         initTabla();
         initListeners();
@@ -35,8 +43,22 @@ public class plnPrincipal extends JFrame {
     }
 
     private void initTabla() {
-        modelo = new DefaultTableModel(new String[]{"Nombre", "Dirección", "Provincia", "Cantón", "Distrito", "Correo"}, 0);
+        modelo = new DefaultTableModel(
+                new String[]{"Nombre", "Dirección", "Provincia", "Cantón", "Distrito", "Correo", "Teléfono"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         tblPrincipalMostrarPersona.setModel(modelo);
+
+        if (tblPrincipalMostrarPersona.getColumnCount() >= 8) {
+            tblPrincipalMostrarPersona.getColumnModel().getColumn(6).setPreferredWidth(160);
+            tblPrincipalMostrarPersona.getColumnModel().getColumn(7).setPreferredWidth(100);
+        }
+
         actualizarTabla(agenda.listarContactos());
     }
 
@@ -45,74 +67,81 @@ public class plnPrincipal extends JFrame {
         for (clsContacto c : lista) {
             modelo.addRow(new Object[]{
                     c.getNombre(), c.getDireccion(), c.getProvincia(),
-                    c.getCanton(), c.getDistrito(), c.getCorreoElectronico()
+                    c.getCanton(), c.getDistrito(), c.getCorreoElectronico(), c.getTelefono()
             });
         }
     }
 
     private void initListeners() {
-        // 🔧 Acción botón Agregar
-        btnAgregar.addActionListener(e -> {
-            frmAgregarContacto formulario = new frmAgregarContacto(null, () -> {
-                agenda.cargarDesdeArchivo("agenda.txt");
-                actualizarTabla(agenda.listarContactos());
-            });
+        btnAgregar.addActionListener(e -> abrirFormularioAgregar());
+        btnPrincipalEditar.addActionListener(e -> abrirFormularioEditar());
 
-            JFrame ventana = new JFrame("Agregar Contacto");
-            ventana.setContentPane(formulario.pnlAgregarContacto);
-            ventana.setSize(500, 500);
-            ventana.setLocationRelativeTo(null);
-            ventana.setVisible(true);
-        });
-
-        // 🔧 Acción botón Editar
-        btnPrincipalEditar.addActionListener(e -> {
-            int fila = tblPrincipalMostrarPersona.getSelectedRow();
-            if (fila < 0) {
-                JOptionPane.showMessageDialog(plnPrincipal, "Seleccione un contacto para editar.");
-                return;
-            }
-
-            String nombre = modelo.getValueAt(fila, 0).toString();
-            clsContacto contacto = agenda.buscarContacto(nombre);
-            if (contacto == null) {
-                JOptionPane.showMessageDialog(plnPrincipal, "No se encontró el contacto.");
-                return;
-            }
-
-            frmAgregarContacto formulario = new frmAgregarContacto(contacto, () -> {
-                agenda.cargarDesdeArchivo("agenda.txt");
-                actualizarTabla(agenda.listarContactos());
-            });
-
-            JFrame ventana = new JFrame("Editar Contacto");
-            ventana.setContentPane(formulario.pnlAgregarContacto);
-            ventana.setSize(500, 500);
-            ventana.setLocationRelativeTo(null);
-            ventana.setVisible(true);
-        });
-
-        // 🔍 Filtro de búsqueda por nombre (enter o tipeo)
-        txtPincipalBusqueda.addActionListener(e -> filtrarPorNombre());
         txtPincipalBusqueda.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                filtrarPorNombre();
+                filtrarBusqueda();
             }
         });
     }
 
-    private void filtrarPorNombre() {
-        String texto = txtPincipalBusqueda.getText().trim();
-        if (texto.isEmpty()) {
+    private void abrirFormularioAgregar() {
+        frmAgregarContacto formulario = new frmAgregarContacto(null, () -> {
+            agenda.cargarDesdeArchivo("agenda.txt");
             actualizarTabla(agenda.listarContactos());
+            volverAlPanelPrincipal();
+        });
+
+        cambiarContenido(formulario.pnlAgregarContacto);
+    }
+
+    private void abrirFormularioEditar() {
+        int fila = tblPrincipalMostrarPersona.getSelectedRow();
+        if (fila < 0) {
+            JOptionPane.showMessageDialog(plnPrincipal, "Seleccione un contacto para editar.");
             return;
         }
 
+        String nombre = modelo.getValueAt(fila, 0).toString();
+        clsContacto contacto = agenda.buscarContacto(nombre);
+
+        if (contacto == null) {
+            JOptionPane.showMessageDialog(plnPrincipal, "No se encontró el contacto.");
+            return;
+        }
+
+        frmAgregarContacto formulario = new frmAgregarContacto(contacto, () -> {
+            agenda.cargarDesdeArchivo("agenda.txt");
+            actualizarTabla(agenda.listarContactos());
+            volverAlPanelPrincipal();
+        });
+
+        cambiarContenido(formulario.pnlAgregarContacto);
+    }
+
+    private void filtrarBusqueda() {
+        String texto = txtPincipalBusqueda.getText().trim().toLowerCase();
+
         List<clsContacto> filtrados = agenda.listarContactos().stream()
-                .filter(c -> c.getNombre().toLowerCase().contains(texto.toLowerCase()))
-                .toList();
+                .filter(c ->
+                        c.getNombre().toLowerCase().contains(texto) ||
+                                c.getCorreoElectronico().toLowerCase().contains(texto) ||
+                                c.getTelefono().toLowerCase().contains(texto)
+                ).toList();
 
         actualizarTabla(filtrados);
+
+        if (!texto.isEmpty() && filtrados.isEmpty()) {
+            JOptionPane.showMessageDialog(plnPrincipal, "No se encontraron contactos con ese criterio.");
+        }
+    }
+
+    private void cambiarContenido(JPanel nuevoPanel) {
+        setContentPane(nuevoPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void volverAlPanelPrincipal() {
+        cambiarContenido(panelInicial);
     }
 }

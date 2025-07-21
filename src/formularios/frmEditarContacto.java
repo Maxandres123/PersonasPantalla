@@ -4,8 +4,6 @@ import clases.clsContacto;
 import clases.clsUtils;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class frmEditarContacto {
@@ -19,15 +17,17 @@ public class frmEditarContacto {
     private JLabel lblEditAction;
     private JLabel lblEditarDireccion;
     private JLabel lblEditarEmail;
+    private JLabel lblEditTelefono;
 
     private JTextField txtEditNombre;
-    private JTextField textField1; // Email
+    private JTextField txtEditEmal;       // Email
+    private JTextField txtEditTelefono;  // Teléfono
 
     private JComboBox<String> cmbEditProvincia;
     private JComboBox<String> cmbEditCanton;
     private JComboBox<String> cmbEditDistrito;
 
-    private JTextArea textArea1; // Dirección
+    private JTextArea txtEditDireccion; // Dirección
 
     private JButton BtnEditEdit;
     private JButton btnEditRegresar;
@@ -40,7 +40,6 @@ public class frmEditarContacto {
         BtnEditEdit.addActionListener(e -> editarContacto());
         btnEliminar.addActionListener(e -> eliminarContacto());
         btnEditRegresar.addActionListener(e -> cerrarVentana());
-
         txtEditNombre.addActionListener(e -> buscarContacto());
     }
 
@@ -60,8 +59,9 @@ public class frmEditarContacto {
             cmbEditProvincia.setSelectedItem(contacto.getProvincia());
             cmbEditCanton.setSelectedItem(contacto.getCanton());
             cmbEditDistrito.setSelectedItem(contacto.getDistrito());
-            textArea1.setText(contacto.getDireccion());
-            textField1.setText(contacto.getCorreoElectronico());
+            txtEditDireccion.setText(contacto.getDireccion());
+            txtEditEmal.setText(contacto.getCorreoElectronico());
+            txtEditTelefono.setText(contacto.getTelefono());
         } else {
             JOptionPane.showMessageDialog(pnlEditarContacto, "Contacto no encontrado.");
         }
@@ -73,11 +73,25 @@ public class frmEditarContacto {
             return;
         }
 
+        String correo = txtEditEmal.getText().trim();
+        String telefono = txtEditTelefono.getText().trim();
+
+        if (!correo.isEmpty() && !correo.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            JOptionPane.showMessageDialog(pnlEditarContacto, "Correo inválido.");
+            return;
+        }
+
+        if (telefono.isEmpty() || !telefono.matches("^\\d{4}-\\d{4}$")) {
+            JOptionPane.showMessageDialog(pnlEditarContacto, "Teléfono inválido. Usa ####-####.");
+            return;
+        }
+
         contactoActual.setProvincia(cmbEditProvincia.getSelectedItem().toString());
         contactoActual.setCanton(cmbEditCanton.getSelectedItem().toString());
         contactoActual.setDistrito(cmbEditDistrito.getSelectedItem().toString());
-        contactoActual.setDireccion(textArea1.getText().trim());
-        contactoActual.setCorreoElectronico(textField1.getText().trim());
+        contactoActual.setDireccion(txtEditDireccion.getText().trim());
+        contactoActual.setCorreoElectronico(correo);
+        contactoActual.setTelefono(telefono);
 
         List<clsContacto> lista = clsUtils.cargarContactos("agenda.txt");
         lista.removeIf(c -> c.getNombre().equalsIgnoreCase(contactoActual.getNombre()));

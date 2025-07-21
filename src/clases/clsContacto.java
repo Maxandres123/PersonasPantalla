@@ -7,18 +7,19 @@ public class clsContacto {
     private String canton;
     private String distrito;
     private String correoElectronico;
+    private String telefono;
 
-    // Constructor vacío
-    public clsContacto() {}
 
     // Constructor completo
-    public clsContacto(String nombre, String direccion, String provincia, String canton, String distrito, String correoElectronico) {
+    public clsContacto(String nombre, String direccion, String provincia, String canton,
+                       String distrito, String correoElectronico, String telefono) {
         this.nombre = nombre;
         this.direccion = direccion;
         this.provincia = provincia;
         this.canton = canton;
         this.distrito = distrito;
         this.correoElectronico = correoElectronico;
+        this.telefono = telefono;
     }
 
     // Getters y Setters
@@ -70,26 +71,30 @@ public class clsContacto {
         this.correoElectronico = correoElectronico;
     }
 
-    // Representación en texto
-    @Override
-    public String toString() {
-        return String.format(
-                "clsContacto{nombre='%s', direccion='%s', provincia='%s', canton='%s', distrito='%s', correoElectronico='%s'}",
-                nombre, direccion, provincia, canton, distrito, correoElectronico
-        );
+    public String getTelefono() {
+        return telefono;
     }
 
-    // Método auxiliar para exportar como línea de texto
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    // Serialización
     public String toLine() {
-        return String.join(";", nombre, direccion, provincia, canton, distrito, correoElectronico);
+        return String.join(";", nombre, direccion, provincia, canton, distrito, correoElectronico, telefono);
     }
 
-    // Método auxiliar para importar desde línea de texto
     public static clsContacto fromLine(String line) {
         String[] partes = line.split(";");
-        if (partes.length == 6) {
-            return new clsContacto(partes[0], partes[1], partes[2], partes[3], partes[4], partes[5]);
+        if (partes.length == 7) {
+            return new clsContacto(partes[0], partes[1], partes[2], partes[3], partes[4], partes[5], partes[6]);
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s [%s] - %s (%s, %s, %s) Tel: %s",
+                nombre, correoElectronico, direccion, provincia, canton, distrito, telefono);
     }
 }
